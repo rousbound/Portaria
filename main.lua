@@ -88,7 +88,7 @@ end
 function love.update(dt)
     check_mouse_down()
     switch_chars()
-    show(actual_char)
+    --show(actual_char)
 end
 
 
@@ -217,24 +217,33 @@ function switch_chars()
     end
 end
 
+
+
 function draw_text_canvas()
     love.graphics.setCanvas(canvas)
+    love.graphics.clear()
     love.graphics.setBackgroundColor(255,255,255)
     for i, line_obj in ipairs(lines_obj) do
+        love.graphics.setColor(255,255,255)
         local mouse_pos = {love.mouse.getPosition()}
         local mousein =  mouse_is_in(line_obj.line, line_obj.pos, mouse_pos)
         local color = line_obj.color_rect
+        if mousein then print(mousein) end
+        show(color)
         if mouse_hold > 10 and mousein then
             --lines_obj[i].color_rect = actual_char.color
             --lines_obj[i].char_id = actual_char.char_id
+            --print(i)
             assign_char(i)
             color = actual_char.color
+            --show({line_obj.pos, fontWidth, fontHeight})
         end
         love.graphics.setColor(color)
-        love.graphics.rectangle("fill", line_obj.pos.x, line_obj.pos.y, font:getWidth(line_obj.line), font:getHeight(line_obj.line))
+        fontHeight = font:getHeight(lines_obj.line)
+        fontWidth = font:getWidth(line_obj.line)
+        love.graphics.rectangle("fill", line_obj.pos.x, line_obj.pos.y, fontWidth, fontHeight )
         love.graphics.printf({{0,0,0},line_obj.line}, line_obj.pos.x, line_obj.pos.y, 1000,  "left")
     end
-    return canvas
 end
 
 function draw_header_canvas()
@@ -246,24 +255,25 @@ function draw_header_canvas()
     love.graphics.setColor({0,0,0})
     love.graphics.rectangle("line", 0, 0, winw, header_height)
     draw_chars(chars)
-    return canvas2
 
 end
 
-canvas = love.graphics.newCanvas(winw, winh)
+canvas = love.graphics.newCanvas(winw, winh*3)
 canvas2 = love.graphics.newCanvas(winw, header_height)
+show(lines_obj)
 
 function love.draw()
 
 
 
-    canvas2 = draw_header_canvas()
-    canvas = draw_text_canvas()
+    draw_header_canvas()
+    draw_text_canvas()
 
 
-   love.graphics.setCanvas() 
-   love.graphics.draw(canvas, 0, global_yoffset)
-   --love.graphics.draw(canvas2, 0, 5)
+    love.graphics.setCanvas() 
+    love.graphics.setColor(255,255,255)
+    love.graphics.draw(canvas, 0, global_yoffset)
+    love.graphics.draw(canvas2, 0, 5)
 end
 
 
@@ -274,56 +284,55 @@ function readAll(file)
     return content
 end
 
-function love.quit()
-    local last_char_id 
-    local script = {}
-    local script_line = ""
-    local lines_obj_filtered = {}
-    for k,line_obj in pairs(lines_obj) do
-        if line_obj.char_id then
-            lines_obj_filtered[#lines_obj_filtered+1] = line_obj
-        end
-    end
+--function love.quit()
+    --local last_char_id 
+    --local script = {}
+    --local script_line = ""
+    --local lines_obj_filtered = {}
+    --for k,line_obj in pairs(lines_obj) do
+        --if line_obj.char_id then
+            --lines_obj_filtered[#lines_obj_filtered+1] = line_obj
+        --end
+    --end
     
-    for i, line_obj in ipairs(lines_obj_filtered) do
-        if last_char_id == nil then
-            last_char_id = line_obj.char_id
-            script_line = line_obj.line
+    --for i, line_obj in ipairs(lines_obj_filtered) do
+        --if last_char_id == nil then
+            --last_char_id = line_obj.char_id
+            --script_line = line_obj.line
 
-        elseif last_char_id == line_obj.char_id then
-            script_line = script_line..". "..line_obj.line
+        --elseif last_char_id == line_obj.char_id then
+            --script_line = script_line..". "..line_obj.line
 
-        elseif last_char_id ~= line_obj.char_id then
-            -- Save last script line
-            local char_name = chars[last_char_id].name
-            script[#script+1] = {char=char_name, line=script_line}
+        --elseif last_char_id ~= line_obj.char_id then
+            ---- Save last script line
+            --local char_name = chars[last_char_id].name
+            --script[#script+1] = {char=char_name, line=script_line}
 
-            script_line = line_obj.line
-            last_char_id = line_obj.char_id
-        end
-        if i == #lines_obj_filtered then
-            local char_name = chars[last_char_id].name
-            script[#script+1] = {char=char_name, line=script_line}
-        end
-    end
-    local tex_template = readAll("template.tex")
+            --script_line = line_obj.line
+            --last_char_id = line_obj.char_id
+        --end
+        --if i == #lines_obj_filtered then
+            --local char_name = chars[last_char_id].name
+            --script[#script+1] = {char=char_name, line=script_line}
+        --end
+    --end
+    --local tex_template = readAll("template.tex")
 
-    local string = ""
-    for k,line in pairs(script) do
-        string = string.."\n\n".."\\mychar{"..line.char.."}: "..line.line
-    end
+    --local string = ""
+    --for k,line in pairs(script) do
+        --string = string.."\n\n".."\\mychar{"..line.char.."}: "..line.line
+    --end
 
-    tex_template = tex_template:gsub("INPUT", string)
-    tex_template = tex_template:gsub("TITLE", "CRITICA")
+    --tex_template = tex_template:gsub("INPUT", string)
+    --tex_template = tex_template:gsub("TITLE", "CRITICA")
 
 
 
-    os.execute("mkdir".." ".."CRITICA")
-    os.execute("cd".." ".."CRITICA".." ".."&& mkdir".." ".."meta")
+    --os.execute("mkdir".." ".."CRITICA")
+    --os.execute("cd".." ".."CRITICA".." ".."&& mkdir".." ".."meta")
 
-    file = io.open("CRITICA/out.tex", "w")
-    io.output(file)
-    io.write(tex_template)
-    io.close(file)
-
-end
+    --file = io.open("CRITICA/out.tex", "w")
+    --io.output(file)
+    --io.write(tex_template)
+    --io.close(file)
+--end
