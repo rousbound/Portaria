@@ -1,11 +1,4 @@
-local form_scene = require'form_scene'
-local script_scene = require'script_scene'
 local char_selection_scene = require'char_selection_scene'
-
-local scenes = {[1]=form_scene, [2]=char_selection_scene, [3]=script_scene}
-local scene_index = 1
-local url, video_title
-
 
 function love.textinput(t)
     if actual_scene.textinput then
@@ -35,10 +28,7 @@ end
 
 function love.update(dt)
     if not actual_scene.running then
-        if actual_scene.name == "form_scene" then
-            url, video_title = actual_scene.exit_program()
-            load_next_scene()
-        end
+        love.event.quit(1)
     end
     actual_scene.update(dt)
 end
@@ -50,6 +40,6 @@ function love.quit()
 end
 
 function love.load()
-    actual_scene = form_scene
+    actual_scene = char_selelection_scene
     actual_scene.load()
 end

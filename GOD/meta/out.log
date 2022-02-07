@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020/Debian) (preloaded format=pdflatex 2021.10.7)  5 FEB 2022 19:58
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020/Debian) (preloaded format=pdflatex 2021.10.7)  7 FEB 2022 14:58
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -724,7 +724,7 @@ File: l3backend-pdftex.def 2020-01-29 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count414
 \l__pdf_internal_box=\box64
 )
-(meta/out.aux)
+No file out.aux.
 \openout1 = `out.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 30.
@@ -741,7 +741,6 @@ LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 30.
 LaTeX Font Info:    ... okay on input line 30.
 LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 30.
 LaTeX Font Info:    ... okay on input line 30.
-
 (/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count415
@@ -844,21 +843,29 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 [1
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] (meta/out.aux)
+
+LaTeX Warning: There were undefined references.
+
+
+Package biblatex Warning: Please (re)run Biber on the file:
+(biblatex)                out
+(biblatex)                and rerun LaTeX afterwards.
+
 Package logreq Info: Writing requests to 'out.run.xml'.
 \openout1 = `out.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 22441 strings out of 479304
+ 22442 strings out of 479304
  440594 string characters out of 5869779
- 1145165 words of memory out of 5000000
- 39301 multiletter control sequences out of 15000+600000
+ 1145131 words of memory out of 5000000
+ 39304 multiletter control sequences out of 15000+600000
  406571 words of font info for 38 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 102i,5n,131p,736b,1570s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 102i,5n,131p,736b,1574s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr
 /share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb>
-Output written on meta/out.pdf (1 page, 27433 bytes).
+Output written on meta/out.pdf (1 page, 28690 bytes).
 PDF statistics:
  19 PDF objects out of 1000 (max. 8388607)
  13 compressed objects within 1 object stream
