@@ -4,8 +4,20 @@ local file = require'file_handling'
 
 scene = {}
 scene.running = true
-
 test = false
+winw = 900
+winh = 1000
+mouse_hold = 0
+
+local lines_obj
+local actual_char
+
+
+scene.global_yoffset = 0
+local text_canvas, header_canvas
+--local url, video_title
+local font
+
 
 function show(var)
     print(inspect(var))
@@ -20,13 +32,13 @@ function get_url_and_name()
     return url, name
 end
 
-function download_vtt(url, name)
-    os.execute("yt2txt.lua".." "..url.." "..name)
-end
+--function download_vtt(url, name)
+    --os.execute("yt2txt.lua".." "..url.." "..name)
+--end
 
-function get_vtt_file_lines(video_title)
+function get_vtt_file_lines(title)
     local lines
-    local file_name = video_title..".pt.vtt"
+    local file_name = title..".pt.vtt"
     if file.exists(file_name) then
         lines = file.read_lines(file_name)
     end
@@ -44,33 +56,34 @@ function filter_vtt(lines)
     return lines
 end
 
-function get_chars_names()
-    local chars = {}
-    while true do
-        io.write('Enter name of character(Leave empty when done): ')
-        local char = io.read()
-        if char ~= "" then 
-            chars[#chars+1] = char
-        else
-            break
-        end
-    end
-    return chars
-end
+--function get_chars_names()
+    --scene.chars = {}
+    --while true do
+        --io.write('Enter name of character(Leave empty when done): ')
+        --local char = io.read()
+        --if scene.char ~= "" then 
+            --scene.chars[#chars+1] = scene.char
+        --else
+            --break
+        --end
+    --end
+    --return scene.chars
+--end
 
 function get_chars()
     local chars = {}
-    local chars_colors = {{255,0,0},{0,255,0},{0,0,255}}
-    if test then
-        chars_names = {"HOMEM", "MULHER", "ANALISTA"}
-    else
-        chars_names = get_chars_names()
-    end
+    local chars_colors = {{255,0,0},{0,255,0},{0,0,255},{222,32,123},{123,212,5}}
+    --chars_colors = unpack(chars_colors,1,#scene.chars_names)
+    --if test then
+        --chars_names = {"HOMEM", "MULHER", "ANALISTA"}
+    --else
+        --chars_names = get_chars_names()
+    --end
     chars_colors[#chars_colors+1] = {255,255,255}
-    chars_names[#chars_names+1] = "LIXO"
+    scene.chars_names[#scene.chars_names+1] = "LIXO"
     local i = 0 
-    for name, color in zip(chars_names, chars_colors) do
-        local x = 120 + i*(winw/#chars_names)
+    for name, color in zip(scene.chars_names, chars_colors) do
+        local x = 120 + i*(winw/#scene.chars_names)
         local y = 20
         local pos = {x=x,y=y}
         chars[#chars+1] = {name=name, color=color, clicked=clicked, pos=pos, char_id = i+1}
@@ -79,18 +92,6 @@ function get_chars()
     return chars
 end
 
-winw = 900
-winh = 1000
-mouse_hold = 0
-
-local lines_obj, chars
-local actual_char
-
-
-local global_yoffset = 0
-local text_canvas, header_canvas
-local url, video_title
-local font
 
 
 function get_lines_obj(lines)
@@ -112,14 +113,9 @@ function get_lines_obj(lines)
     return lines_obj
 end
 
-function text_get_rect(text) 
-    x,y = love.mouse.getPosition()
-    w = font:getWidth(text)
-    h = font:getHeight(text)
-end
-
-function mouse_is_in(rect, mouse_pos) 
+function scene.mouse_is_in(rect, mouse_pos) 
     x, y = unpack(mouse_pos)
+    y = y - scene.global_yoffset
     w = rect.w
     h = rect.h
     if rect.pos.x < x and x < rect.pos.x + w then
@@ -184,9 +180,7 @@ function draw_text_canvas()
     for i, line_obj in ipairs(lines_obj) do
         love.graphics.setColor(255,255,255)
         local mouse_pos = {love.mouse.getPosition()}
-        local mousein =  mouse_is_in(line_obj.rect, mouse_pos)
-        print("Iteration")
-        if mousein then print(true) end
+        local mousein =  scene.mouse_is_in(line_obj.rect, mouse_pos)
         local color = line_obj.color_rect
         if mouse_hold > 10 and mousein then
             assign_char(i)
@@ -283,36 +277,30 @@ function write_latex_file(script)
     end
 
     tex_template = tex_template:gsub("INPUT", string)
-    show(video_title)
-    local temp = video_title:gsub("_"," ")
+    local temp = scene.video_title:gsub("_"," ")
     tex_template = tex_template:gsub("TITLE", temp)
 
 
 
-    os.execute("mkdir".." "..video_title)
-    os.execute("cd".." "..video_title.." ".."&& mkdir".." ".."meta")
+    os.execute("mkdir".." "..scene.video_title)
+    os.execute("cd".." "..scene.video_title.." ".."&& mkdir".." ".."meta")
 
-    fh = io.open(video_title.."/out.tex", "w")
+    fh = io.open(scene.video_title.."/out.tex", "w")
     io.output(fh)
     io.write(tex_template)
     io.close(fh)
 end
 
 
-function love.wheelmoved(x, y)
-    if y > 0 then
-        text = "Mouse wheel moved up"
-    elseif y < 0 then
-        text = "Mouse wheel moved down"
-    end
-    global_yoffset = global_yoffset + (y*10)
+function scene.wheelmoved(x, y)
+    scene.global_yoffset = scene.global_yoffset + (y*10)
 end
 
 function scene.mousepressed(x, y, button, istouch, presses)
 
     if presses == 1 and button == 1 then
         for i, line_obj in ipairs(lines_obj) do
-            local mousein =  mouse_is_in(line_obj.rect, {x,y})
+            local mousein =  scene.mouse_is_in(line_obj.rect, {x,y})
             if mousein then
                 if love.mouse.isDown(1) then
                     assign_char(i)
@@ -323,26 +311,25 @@ function scene.mousepressed(x, y, button, istouch, presses)
 
 end
 
-function scene.load(arg_url, arg_video_title)
+function scene.load()
     success = love.window.setMode( winw, winh)
     text_canvas = love.graphics.newCanvas(winw, winh*3)
     header_canvas = love.graphics.newCanvas(winw, header_height)
     font = love.graphics.newFont( "ttf/OpenSans-Bold.ttf", 15)
     love.graphics.setFont(font)
     local lines
-    if not test then
-        --url, video_title = get_url_and_name()
-        url = arg_url
-        video_title = arg_video_title
-        video_title = video_title:gsub(" ","_")
-        download_vtt(url, video_title)
-    else
-        video_title = "CRITICA"
-    end
-    lines = get_vtt_file_lines(video_title)
+    --if not test then
+        ----url, video_title = get_url_and_name()
+        --url = arg_url
+        ----video_title = arg_video_title
+        --video_title = video_title:gsub(" ","_")
+        ----download_vtt(url, video_title)
+    --else
+        --video_title = "CRITICA"
+    --end
+    lines = get_vtt_file_lines(scene.video_title)
     lines = filter_vtt(lines)
     lines_obj = get_lines_obj(lines)
-
     chars = get_chars()
     actual_char = chars[#chars]
 end
@@ -368,12 +355,13 @@ function scene.draw()
 
     love.graphics.setCanvas() 
     love.graphics.setColor(255,255,255)
-    love.graphics.draw(text_canvas, 0, global_yoffset)
+    love.graphics.draw(text_canvas, 0, scene.global_yoffset)
     love.graphics.draw(header_canvas, 0, 5)
 end
 
 time_elapsed = 0
 function scene.update(dt)
+    print(scene.global_yoffset)
     time_elapsed = time_elapsed + dt
     check_mouse_down()
     keyboard_switch_chars()

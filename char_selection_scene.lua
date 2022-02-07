@@ -10,7 +10,8 @@ end
 
 local texts = {}
 local ready, counter
-local ctrl_v_counter
+local ctrl_v_counter = 0
+local enter_counter = 0
 scene.running = true
 scene.name = "char_selection_scene"
 font = love.graphics.getFont( )
@@ -27,11 +28,10 @@ end
 
 function scene.load()
     counter = 0
-    ctrl_v_counter = 0
-    label = "Enter Char name:" 
+    enter_counter = 0
+    label = "Enter char name(Leave empty when done):" 
     add_form(label)
 
-    -- enable key repeat so backspace can be held down to trigger love.keypressed multiple times.
     love.keyboard.setKeyRepeat(true)
 end
 
@@ -43,19 +43,15 @@ function scene.update(dt)
     end
     counter = counter + dt
     ctrl_v_counter = ctrl_v_counter + dt
+    enter_counter = enter_counter + dt
     check_ctrlv()
-end
-
-function assign_char(i)
-    --texts[i].clicked = not texts[i].clicked
-    --texts[i].clicked = true
 end
 
 function scene.mousepressed(x, y, button, istouch, presses)
 
     if presses >= 1 and button == 1 then
         for i, line_obj in ipairs(texts) do
-            local mousein =  mouse_is_in(line_obj.rect, {x,y})
+            local mousein =  scene.mouse_is_in(line_obj.rect, {x,y})
             if mousein then
                 if love.mouse.isDown(1) then
                     print("Mouse pressed")
@@ -103,7 +99,7 @@ function check_ctrlv()
     end
 end
 
-function mouse_is_in(rect, mouse_pos) 
+function scene.mouse_is_in(rect, mouse_pos) 
     x, y = unpack(mouse_pos)
     w = rect.w
     h = rect.h
@@ -116,20 +112,27 @@ function mouse_is_in(rect, mouse_pos)
 end
 
 function scene.exit_program()
-    url = texts[1].text
-    name = texts[2].text
-    return url, name
+    local chars_names = {}
+    for k, form in pairs(texts) do
+        if form.text ~= "" then
+            chars_names[#chars_names+1] = form.text
+        end
+    end
+    return chars_names
 end
 
 function scene.listen_enter()
-    if love.keyboard.isDown("return") then
-        if texts[clicked_index].text != "" then
-            add_form("Enter Char name:")
-            clicked_index = clicked_index + 1
-        else 
-            scene.running = false
-        end
+    if enter_counter > 0.10 then
+        if love.keyboard.isDown("return") then
+            if texts[clicked_index].text ~= "" then
+                add_form("Enter Char name:")
+                clicked_index = clicked_index + 1
+            else 
+                scene.running = false
+            end
 
+        end
+        enter_counter = 0
     end
 
 end
@@ -144,7 +147,7 @@ function scene.draw()
             love.graphics.setLineWidth( 4 )
             --love.graphics.setColor({0,0,0})
         end
-        label_offset_x = 100
+        label_offset_x = font:getWidth(text.label)+ 10
         love.graphics.printf({{0,0,0}, text.label}, text.pos.x+5, text.pos.y+2, love.graphics.getWidth())
         love.graphics.rectangle("line", text.pos.x+label_offset_x, text.pos.y, text.rect.w, text.rect.h)
         love.graphics.printf({{0,0,0}, text.text}, text.pos.x+5+label_offset_x, text.pos.y+2, love.graphics.getWidth())

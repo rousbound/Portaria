@@ -35,13 +35,10 @@ end
 
 
 function scene.update(dt)
-    local url, name = scene.listen_enter()
-    if url or name then
-        return url, name
-    end
+    scene.listen_enter()
     counter = counter + dt
     ctrl_v_counter = ctrl_v_counter + dt
-    check_ctrlv()
+    scene.check_ctrlv()
 end
 
 function assign_char(i)
@@ -53,7 +50,7 @@ function scene.mousepressed(x, y, button, istouch, presses)
 
     if presses >= 1 and button == 1 then
         for i, line_obj in ipairs(texts) do
-            local mousein =  mouse_is_in(line_obj.rect, {x,y})
+            local mousein =  scene.mouse_is_in(line_obj.rect, {x,y})
             if mousein then
                 if love.mouse.isDown(1) then
                     print("Mouse pressed")
@@ -90,7 +87,8 @@ function scene.keypressed(key)
     --end
 end
 
-function check_ctrlv()
+function scene.check_ctrlv()
+    print("PASTING")
     if ctrl_v_counter > 0.15 then
         if love.keyboard.isDown("v") and love.keyboard.isDown("lctrl") then
             fh = io.popen("xclip -selection clipboard -o")
@@ -101,7 +99,7 @@ function check_ctrlv()
     end
 end
 
-function mouse_is_in(rect, mouse_pos) 
+function scene.mouse_is_in(rect, mouse_pos) 
     x, y = unpack(mouse_pos)
     w = rect.w
     h = rect.h
@@ -113,10 +111,16 @@ function mouse_is_in(rect, mouse_pos)
     return false
 end
 
+function download_vtt(url, name)
+    os.execute("yt2txt.lua".." "..url.." "..name)
+end
+
 function scene.exit_program()
     url = texts[1].text
     name = texts[2].text
-    return url, name
+    download_vtt(url, name)
+    print(url, name)
+    return name
 end
 
 function scene.listen_enter()
