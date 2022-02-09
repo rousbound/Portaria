@@ -1,3 +1,7 @@
+local file = require'bib.file_handling'
+
+folder_path = file.read_lines("config.txt")[1]
+
 local form_scene = require'form_scene'
 local char_selection_scene = require'char_selection_scene'
 local script_scene = require'script_scene'

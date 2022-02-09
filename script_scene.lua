@@ -38,9 +38,12 @@ end
 
 function get_vtt_file_lines(title)
     local lines
-    local file_name = title.."/"..title..".pt.vtt"
+    local file_name = folder_path.."/"..title.."/"..title..".pt.vtt"
     if file.exists(file_name) then
+        print("Reading file: ", file_name)
         lines = file.read_lines(file_name)
+    else
+        print("File not found: ", file_name)
     end
     return lines
 end
@@ -282,10 +285,10 @@ function write_latex_file(script)
 
 
 
-    os.execute("mkdir".." "..scene.video_title)
-    os.execute("cd".." "..scene.video_title.." ".."&& mkdir".." ".."meta")
+    --os.execute("cd "..folder_path.." && mkdir".." "..scene.video_title)
+    os.execute("cd "..folder_path.."/"..scene.video_title.." && mkdir".." ".."meta")
 
-    fh = io.open(scene.video_title.."/out.tex", "w")
+    fh = io.open(folder_path.."/"..scene.video_title.."/out.tex", "w")
     io.output(fh)
     io.write(tex_template)
     io.close(fh)

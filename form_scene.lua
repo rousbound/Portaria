@@ -121,13 +121,13 @@ function scene.mouse_is_in(rect, mouse_pos)
 end
 
 function download_vtt(url, name)
-    os.execute("mkdir".." "..name)
-    local file_name = name.."/"..name..".pt.vtt"
+    os.execute("cd "..folder_path.." && mkdir "..name)
+    local file_name = folder_path.."/"..name.."/"..name..".pt.vtt"
     if not file.exists(file_name) then
         print("File doesnt exists")
         --os.execute("cd "..name.." && ".."yt2txt.lua".." "..url.." "..name)
         --os.execute("cd "..name.." && ".."yt2txt".." "..url.." "..name)
-        os.execute("youtube-dl --verbose --write-auto-sub --write-sub --sub-lang pt -o "..name.." --skip-download "..url)
+        os.execute("cd "..folder_path.."/"..name.." && ".."youtube-dl --verbose --write-auto-sub --write-sub --sub-lang pt -o "..name.." --skip-download "..url)
     end
 end
 
