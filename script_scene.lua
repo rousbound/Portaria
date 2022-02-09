@@ -1,13 +1,13 @@
-local inspect = require'inspect'
-local zip = require'zip'
-local file = require'file_handling'
+local inspect = require'bib.inspect'
+local zip = require'bib.zip'
+local file = require'bib.file_handling'
 
 scene = {}
 scene.running = true
 test = false
-winw = 900
-winh = 1000
 mouse_hold = 0
+scene.winw = 900
+scene.winh = 1000
 
 local lines_obj
 local actual_char
@@ -38,7 +38,7 @@ end
 
 function get_vtt_file_lines(title)
     local lines
-    local file_name = title..".pt.vtt"
+    local file_name = title.."/"..title..".pt.vtt"
     if file.exists(file_name) then
         lines = file.read_lines(file_name)
     end
@@ -83,7 +83,7 @@ function get_chars()
     scene.chars_names[#scene.chars_names+1] = "LIXO"
     local i = 0 
     for name, color in zip(scene.chars_names, chars_colors) do
-        local x = 120 + i*(winw/#scene.chars_names)
+        local x = 120 + i*(scene.winw/#scene.chars_names)
         local y = 20
         local pos = {x=x,y=y}
         chars[#chars+1] = {name=name, color=color, clicked=clicked, pos=pos, char_id = i+1}
@@ -98,7 +98,7 @@ function get_lines_obj(lines)
     local lines_obj = {}
     local i = 0
     for k, line in pairs(lines) do
-        local posx = winw/2-(font:getWidth(line)/2)
+        local posx = scene.winw/2-(font:getWidth(line)/2)
         local posy = 100+i*20
         pos = {x=posx,y=posy}
         lines_obj[#lines_obj+1] = {line=line,
@@ -216,9 +216,9 @@ function draw_header_canvas()
     local header_height = 60
     love.graphics.setCanvas(header_canvas)
     love.graphics.setColor({255,255,255})
-    love.graphics.rectangle("fill", 0, 0, winw, header_height)
+    love.graphics.rectangle("fill", 0, 0, scene.winw, header_height)
     love.graphics.setColor({0,0,0})
-    love.graphics.rectangle("line", 0, 0, winw, header_height)
+    love.graphics.rectangle("line", 0, 0, scene.winw, header_height)
     draw_chars(chars)
 
 end
@@ -269,7 +269,7 @@ function get_movie_script()
 end
 
 function write_latex_file(script)
-    local tex_template = file.read_all("template.tex")
+    local tex_template = file.read_all("tex/template.tex")
 
     local string = ""
     for k,line in pairs(script) do
@@ -312,9 +312,9 @@ function scene.mousepressed(x, y, button, istouch, presses)
 end
 
 function scene.load()
-    success = love.window.setMode( winw, winh)
-    text_canvas = love.graphics.newCanvas(winw, winh*3)
-    header_canvas = love.graphics.newCanvas(winw, header_height)
+    success = love.window.setMode(scene.winw, scene.winh)
+    text_canvas = love.graphics.newCanvas(scene.winw, scene.winh*3)
+    header_canvas = love.graphics.newCanvas(scene.winw, header_height)
     font = love.graphics.newFont( "ttf/OpenSans-Bold.ttf", 15)
     love.graphics.setFont(font)
     local lines
@@ -361,7 +361,6 @@ end
 
 time_elapsed = 0
 function scene.update(dt)
-    print(scene.global_yoffset)
     time_elapsed = time_elapsed + dt
     check_mouse_down()
     keyboard_switch_chars()

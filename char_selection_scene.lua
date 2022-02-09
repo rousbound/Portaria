@@ -1,5 +1,5 @@
 local utf8 = require("utf8")
-local inspect = require'inspect'
+local inspect = require'bib.inspect'
 
 local scene = {}
 
@@ -14,6 +14,8 @@ local ctrl_v_counter = 0
 local enter_counter = 0
 scene.running = true
 scene.name = "char_selection_scene"
+scene.winw = 830
+scene.winh = 300
 font = love.graphics.getFont( )
 font_height = font:getHeight()
 
@@ -27,6 +29,7 @@ function add_form(label)
 end
 
 function scene.load()
+    success = love.window.setMode(scene.winw,scene.winh)
     counter = 0
     enter_counter = 0
     label = "Enter char name(Leave empty when done):" 
@@ -125,7 +128,7 @@ function scene.listen_enter()
     if enter_counter > 0.10 then
         if love.keyboard.isDown("return") then
             if texts[clicked_index].text ~= "" then
-                add_form("Enter Char name:")
+                add_form("Enter char name(Leave empty when done):")
                 clicked_index = clicked_index + 1
             else 
                 scene.running = false

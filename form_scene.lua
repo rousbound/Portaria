@@ -1,5 +1,6 @@
 local utf8 = require("utf8")
-local inspect = require'inspect'
+local inspect = require'bib.inspect'
+local file = require'bib.file_handling'
 
 local scene = {}
 
@@ -13,6 +14,8 @@ local ready, counter
 local ctrl_v_counter
 scene.running = true
 scene.name = "form_scene"
+scene.winw = 530
+scene.winh = 80
 font = love.graphics.getFont( )
 font_height = font:getHeight()
 
@@ -20,6 +23,7 @@ font_height = font:getHeight()
 local clicked_index = 1
 
 function scene.load()
+    success = love.window.setMode(scene.winw, scene.winh)
     counter = 0
     ctrl_v_counter = 0
 
@@ -67,6 +71,14 @@ function scene.textinput(t)
     texts[clicked_index].text = texts[clicked_index].text..t
 end
 
+function cycle_forms()
+    if clicked_index < #texts then
+        clicked_index = clicked_index + 1
+    else
+        clicked_index = 1
+    end
+
+end
 function scene.keypressed(key)
     if key == "backspace" then
         -- get the byte offset to the last UTF-8 character in the string.
@@ -79,16 +91,13 @@ function scene.keypressed(key)
             texts[clicked_index].text = string.sub(text, 1, byteoffset - 1)
             --actual_text = 
         end
+    elseif key == "tab" then
+        cycle_forms()
+
     end
-    --if key == "return" then
-        --pos = {x=0, y=font_height + (#texts*font_height)}
-        --texts[#texts+1] = {text=actual_text,pos=pos}
-        --actual_text = "Enter video name -- "
-    --end
 end
 
 function scene.check_ctrlv()
-    print("PASTING")
     if ctrl_v_counter > 0.15 then
         if love.keyboard.isDown("v") and love.keyboard.isDown("lctrl") then
             fh = io.popen("xclip -selection clipboard -o")
@@ -112,7 +121,14 @@ function scene.mouse_is_in(rect, mouse_pos)
 end
 
 function download_vtt(url, name)
-    os.execute("yt2txt.lua".." "..url.." "..name)
+    os.execute("mkdir".." "..name)
+    local file_name = name.."/"..name..".pt.vtt"
+    if not file.exists(file_name) then
+        print("File doesnt exists")
+        --os.execute("cd "..name.." && ".."yt2txt.lua".." "..url.." "..name)
+        --os.execute("cd "..name.." && ".."yt2txt".." "..url.." "..name)
+        os.execute("youtube-dl --verbose --write-auto-sub --write-sub --sub-lang pt -o "..name.." --skip-download "..url)
+    end
 end
 
 function scene.exit_program()
